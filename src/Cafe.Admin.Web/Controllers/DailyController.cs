@@ -13,6 +13,7 @@ namespace Cafe.Admin.Web.Controllers
         [GET("/daily")]
         public ActionResult Index()
         {
+            throw new Exception();
             return View();
         }
 

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http.Filters;
 using System.Web.Mvc;
 using log4net;
 
 namespace Cafe.Admin.Web
 {
-    public class LoggingExceptionFilter : System.Web.Mvc.IExceptionFilter
+    public class LoggingExceptionFilter : IExceptionFilter
     {
+        #region IExceptionFilter Members
+
         public void OnException(ExceptionContext filterContext)
         {
             Exception exception = filterContext.Exception;
@@ -23,7 +22,10 @@ namespace Cafe.Admin.Web
                 exception.Message.Contains("File does not exist"))
                 return;
 
-            string userName = string.Format("User: {0}", HttpContext.Current.Session == null ? "empty" : HttpContext.Current.Session["Username"]);
+            string userName = string.Format("User: {0}",
+                                            HttpContext.Current.Session == null
+                                                ? "empty"
+                                                : HttpContext.Current.Session["Username"]);
             string remoteIp = "IP Address: " + GetIP();
             string pageUrl = "Page url: " + HttpContext.Current.Request.Url;
             string userAgent = "Browser: " + HttpContext.Current.Request.UserAgent;
@@ -44,6 +46,8 @@ namespace Cafe.Admin.Web
             Log.Error(sb.ToString(), exception);
         }
 
+        #endregion
+
         public static string GetIP()
         {
             string ip =
@@ -55,6 +59,6 @@ namespace Cafe.Admin.Web
             }
 
             return ip;
-        }        
+        }
     }
 }
