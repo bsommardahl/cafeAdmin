@@ -1,0 +1,154 @@
+﻿@using Cafe.Admin.Web.Models
+@using Cafe.Data
+@model Cafe.Admin.Web.Models.DailySheetModel
+
+@{
+    ViewBag.Title = "Daily Sheet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    * { font-size: 11px;}
+    td{ border-bottom: #CCCCCC solid 1px;}
+    th{ border-bottom: #CCCCCC solid 1px;}
+
+    .page {
+        margin: 0 auto;
+        width: 800px;
+    }
+
+    .tabular { width: 100%; }
+
+    .tabular tfoot { background: #EEEEEE; }
+
+    .tabular thead {
+        background: #333333;
+        color: white;
+    }
+
+    .totalRight { text-align: right; }
+
+    .finalTotals {
+        margin-left: auto;
+        width: 400px;
+    }
+    .numberCell{ text-align: right;}
+</style>
+
+<div class="page">
+    <h2>Diario de Cafe El Gringo - Santa Ana, FM - @Model.StartDate a @Model.EndDate</h2>
+    
+    <h3>Ventas</h3>
+
+    <table class='tabular'>
+        <thead>
+            <tr>
+                <th>Cantidad</th>
+                <th>Categoria</th>
+                <th>Producto</th>
+                <th class="numberCell">Precio</th>
+                <th class="numberCell">Venta</th>
+                <th class="numberCell">% de ISV</th>
+                <th class="numberCell">ISV</th>
+                <th class="numberCell">Costo</th>
+                <th class="numberCell">Ganancia</th>                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ProductModel p in Model.Products)
+            {
+                <tr>
+                    <td>@p.Quantity</td>
+                    <td>@p.Tag</td>
+                    <td>@p.Name</td>
+                    <td class="numberCell">@p.Price</td>
+                    <td class="numberCell">@p.TotalSales</td>
+                    <td class="numberCell">@p.TaxRate</td>
+                    <td class="numberCell">@p.TotalTax</td>
+                    <td class="numberCell">@p.TotalCost</td>
+                    <td class="numberCell">@p.TotalProfit</td>
+                </tr>
+            }            
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="numberCell">Total Venta:</td>
+                <td class="numberCell">@Model.Products.Sum(x => x.TotalSales)</td>
+                <td class="numberCell">Total ISV:</td>
+                <td class="numberCell">@Model.Products.Sum(x => x.TotalTax)</td>                
+                <td class="numberCell">Total Ganancia:</td>
+                <td class="numberCell">@Model.Products.Sum(x => x.TotalProfit)</td>                
+            </tr>
+        </tfoot>
+    </table>
+    
+    <h3 class="totalRight">Total Ingreso: @Model.TotalCredit</h3>
+
+    <h3>Gastos</h3>
+
+    <table class='tabular'>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th></th>
+                <th class="numberCell">Pagado</th>
+                <th></th>
+                <th class="numberCell">ISV</th>                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Debit d in Model.Debits)
+            {
+                <tr>
+                    <td>@d.VendorName</td>
+                    <td>@d.Description</td>
+                    <td></td>
+                    <td class="numberCell">@d.Amout</td>
+                    <td></td>
+                    <td class="numberCell">@d.TaxPaid</td>                
+                </tr>
+            }            
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="numberCell">Total Gastado:</td>
+                <td class="numberCell">@Model.Debits.Sum(x => x.Amout)</td>
+                <td class="numberCell">Total ISV Pagado:</td>
+                <td class="numberCell">@Model.Debits.Sum(x => x.TaxPaid)</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <h3 class="totalRight">Total Gasto: @Model.TotalDebits</h3>
+    
+    <div class="finalTotals">
+        <table class='tabular'>
+            <tr>
+                <th class="numberCell">Total Venta Ingresado</th>
+                <td class="numberCell">@Model.TotalCredit</td>
+            </tr>
+            <tr>
+                <th class="numberCell">Total Gastos</th>
+                <td class="numberCell">-@Model.TotalDebits</td>
+            </tr>
+            <tr>
+                <th class="numberCell">Efectivo en Caja</th>
+                <td class="numberCell">@Model.CashInRegister</td>
+            </tr>                
+            <tr>
+                <th class="numberCell">Fondo de Caja</th>
+                <td class="numberCell">-@Model.Seed</td>
+            </tr>                
+            <tr>
+                <th class="numberCell">Total Final</th>
+                <td class="numberCell">@Model.FinalTotal</td>
+            </tr>    
+        </table>
+    </div>
+</div>

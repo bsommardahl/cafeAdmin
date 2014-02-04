@@ -1,0 +1,20 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Daily Sheet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form action="/daily" method="POST">
+    <h2>Daily Sheet</h2>
+    <p>Inicio: <input type="date" name="start" value=""/></p>
+    <p>Termino: <input type="date" name="end" value=""/></p>
+    <p>Order: 
+        <label><input type="radio" name="orderBy" value="product"/>Producto</label> 
+        <label><input type="radio" name="orderBy" value="tag"/>Categoria</label> 
+        <label><input type="radio" name="orderBy" value="quantity"/>Cantidad</label>    
+        <label><input type="radio" name="orderBy" value="sales"/>Venta</label>
+        <label><input type="radio" name="orderBy" value="profit"/>Ganancia</label>
+    </p>
+    <p><input type="submit" value="Run Report"/></p>    
+</form>
