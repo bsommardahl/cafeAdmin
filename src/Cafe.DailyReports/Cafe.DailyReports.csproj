@@ -77,6 +77,9 @@
     <Compile Include="StaTaskScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Views\success.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
@@ -87,7 +90,6 @@
     <Content Include="Views\DailySheet.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cafe.Data\Cafe.Data.csproj">

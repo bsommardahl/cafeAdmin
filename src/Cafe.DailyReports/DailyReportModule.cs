@@ -27,6 +27,9 @@ namespace Cafe.DailyReports
 
         private readonly string printerDeviceName = ConfigurationManager.AppSettings["printerName"];
 
+        private readonly string connectionString =
+            ConfigurationManager.ConnectionStrings["CafeReport.Properties.Settings.CafeConnectionString"].ToString();
+
         private readonly TaskScheduler sta = new StaTaskScheduler(1);
 
         #endregion
@@ -166,7 +169,7 @@ namespace Cafe.DailyReports
             start = start.Date.AddMinutes(1);
             end = end.AddDays(1).Date.AddMinutes(-1);
 
-            using (var dc = new CafeDataContext())
+            using (var dc = new CafeDataContext(connectionString))
             {
                 IQueryable<Order> orders = dc.Orders.Where(x => x.Paid.Date >= start.Date && x.Paid <= end);
                 List<Product> products = dc.Products.ToList();
@@ -233,7 +236,7 @@ namespace Cafe.DailyReports
 
             this.PrintHtml(htmlPath, this.printerDeviceName);
 
-            return this.Response;
+            return View["success"];
         }
 
         private void PrintHtml(string htmlPath, string printerDevice)
