@@ -1,6 +1,5 @@
-﻿@using Cafe.Admin.Web.Models
-@using Cafe.Data
-@model Cafe.Admin.Web.Models.DailySheetModel
+﻿@using Cafe.Data
+@model Cafe.DailyReportPrinter.DailySheetModel
 
 @{
     ViewBag.Title = "Daily Sheet";
@@ -55,7 +54,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (ProductModel p in Model.Products)
+            @foreach (var p in Model.Products)
             {
                 <tr>
                     <td>@p.Quantity</td>

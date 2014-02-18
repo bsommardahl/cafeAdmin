@@ -9,7 +9,8 @@
       <Column Name="Amout" Type="System.Decimal" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
       <Column Name="Description" Type="System.String" DbType="VarChar(500) NOT NULL" CanBeNull="false" />
       <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
-      <Column Name="TaxPaid" Type="System.Decimal" DbType="Decimal(18,0)" CanBeNull="true" />
+      <Column Name="TaxPaid" Type="System.Decimal" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
+      <Column Name="OperationalExpense" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
     </Type>
   </Table>
   <Table Name="dbo.Vendors" Member="Vendors">

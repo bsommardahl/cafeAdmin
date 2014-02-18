@@ -9,14 +9,12 @@ namespace Cafe.Restore
 {
     class Program
     {
-        static CafeDataReader _dataReader;
-        static RestClient _restClient;
+        static RestClient restClient;
 
         static void Main(string[] args)
         {
-            _restClient = new RestClient("http://cafeserver.aws.af.cm");
-            _dataReader = new CafeDataReader(_restClient);
-
+            restClient = new RestClient("http://cafeserver.aws.af.cm");
+            
             using (var dc = new CafeDataContext())
             {
                 RestoreFromSQL(dc.Products, "/products", x => new ProductJson
@@ -60,7 +58,7 @@ namespace Cafe.Restore
         static void RestoreFromSQL<T1, T2>(IEnumerable<T2> objects, string resource, Func<T2, T1> map) where T1 : new()
         {
             Console.WriteLine(resource);
-            _restClient.Execute(new RestRequest(resource, Method.DELETE));
+            restClient.Execute(new RestRequest(resource, Method.DELETE));
 
             foreach (T2 obj in objects)
             {
@@ -71,7 +69,7 @@ namespace Cafe.Restore
                                   };
                 T1 mappedObj = map.Invoke(obj);
                 request.AddBody(mappedObj);
-                IRestResponse<T1> response = _restClient.Execute<T1>(request);
+                IRestResponse<T1> response = restClient.Execute<T1>(request);
                 if (response.ErrorException != null) throw response.ErrorException;
                 Console.Write(".");
             }
