@@ -1,36 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Drawing.Printing;
+using System.Linq;
+using System.Management;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Cafe.Data;
+using Nancy;
+using Nancy.ModelBinding;
+
 namespace Cafe.DailyReports
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Drawing.Printing;
-    using System.Linq;
-    using System.Management;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
-
-    using Cafe.Data;
-
-    using Nancy;
-    using Nancy.ModelBinding;
-
     public class DailyReportModule : NancyModule
     {
         #region Static Fields
 
-        private static DateTime dataImported;
+        static DateTime dataImported;
 
         #endregion
 
         #region Fields
 
-        private readonly string printerDeviceName = ConfigurationManager.AppSettings["printerName"];
-
-        private readonly string connectionString =
+        readonly string connectionString =
             ConfigurationManager.ConnectionStrings["CafeReport.Properties.Settings.CafeConnectionString"].ToString();
 
-        private readonly TaskScheduler sta = new StaTaskScheduler(1);
+        readonly string printerDeviceName = ConfigurationManager.AppSettings["printerName"];
+
+        readonly TaskScheduler sta = new StaTaskScheduler(1);
 
         #endregion
 
@@ -38,16 +36,18 @@ namespace Cafe.DailyReports
 
         public DailyReportModule()
         {
-            this.Get["/daily"] = o => this.ViewDailyReport();
+            Get["/daily/start"] = o => View["dailyStart"];
 
-            this.Get["/print/daily"] = o => this.PrintDailyReport();
+            Get["/daily"] = o => ViewDailyReport();
+
+            Get["/print/daily"] = o => PrintDailyReport();
         }
 
         #endregion
 
         #region Methods
 
-        private static IEnumerable<ProductModel> Products(
+        static IEnumerable<ProductModel> Products(
             IQueryable<Order> orders, IEnumerable<Product> products, string orderBy)
         {
             List<IGrouping<string, OrderItem>> list = orders.SelectMany(x => x.OrderItems).GroupBy(x => x.Name).ToList();
@@ -63,7 +63,7 @@ namespace Cafe.DailyReports
             }
             else if (orderBy == "sales")
             {
-                orderedEnumerable = list.OrderBy(x => x.Count() * x.First().Price);
+                orderedEnumerable = list.OrderBy(x => x.Count()*x.First().Price);
             }
             else
             {
@@ -80,29 +80,29 @@ namespace Cafe.DailyReports
                         {
                             return new ProductModel();
                         }
-                        double totalCost = Convert.ToDouble((quantity * product.Cost));
+                        double totalCost = Convert.ToDouble((quantity*product.Cost));
 
                         decimal itemPrice = orderItem.Price;
                         //decimal itemPrice = product.Price;
 
-                        double totalTax = Convert.ToDouble(quantity * (itemPrice * product.TaxRate));
-                        double totalSales = Convert.ToDouble(quantity * itemPrice);
-                        double taxRate = Convert.ToDouble(product.TaxRate) * 100;
+                        double totalTax = Convert.ToDouble(quantity*(itemPrice*product.TaxRate));
+                        double totalSales = Convert.ToDouble(quantity*itemPrice);
+                        double taxRate = Convert.ToDouble(product.TaxRate)*100;
                         double price = Convert.ToDouble(itemPrice);
                         double totalProfit = totalSales - totalCost;
 
                         return new ProductModel
-                            {
-                                Name = orderItem.Name,
-                                Tag = orderItem.Tags,
-                                Price = price,
-                                TaxRate = taxRate,
-                                Quantity = quantity,
-                                TotalSales = totalSales,
-                                TotalTax = totalTax,
-                                TotalCost = totalCost,
-                                TotalProfit = totalProfit
-                            };
+                                   {
+                                       Name = orderItem.Name,
+                                       Tag = orderItem.Tags,
+                                       Price = price,
+                                       TaxRate = taxRate,
+                                       Quantity = quantity,
+                                       TotalSales = totalSales,
+                                       TotalTax = totalTax,
+                                       TotalCost = totalCost,
+                                       TotalProfit = totalProfit
+                                   };
                     });
 
             if (orderBy == "profit")
@@ -113,7 +113,7 @@ namespace Cafe.DailyReports
             return productModels.ToList();
         }
 
-        private static void SetAsDefaultPrinter(string printerDevice)
+        static void SetAsDefaultPrinter(string printerDevice)
         {
             bool installed = false;
             foreach (object printer in PrinterSettings.InstalledPrinters)
@@ -139,7 +139,7 @@ namespace Cafe.DailyReports
             return;
         }
 
-        private DailyReportInput GetDailyReportInputWithDefaults()
+        DailyReportInput GetDailyReportInputWithDefaults()
         {
             var dailyReportInput = this.Bind<DailyReportInput>();
 
@@ -158,7 +158,7 @@ namespace Cafe.DailyReports
             return dailyReportInput;
         }
 
-        private DailySheetModel GetDailySheetData(DateTime start, DateTime end, string orderBy)
+        DailySheetModel GetDailySheetData(DateTime start, DateTime end, string orderBy)
         {
             if (dataImported < DateTime.Now.AddMinutes(-5))
             {
@@ -188,22 +188,22 @@ namespace Cafe.DailyReports
                 double cashInRegister = (totalCredit - totalDebits) + seed;
 
                 return new DailySheetModel
-                    {
-                        Products = productModels,
-                        TotalCredit = totalCredit,
-                        Debits = this.MapDebits(debits),
-                        TotalDebits = totalDebits,
-                        CashInRegister = cashInRegister,
-                        Seed = seed,
-                        FinalTotal = cashInRegister - seed,
-                        StartDate = string.Format("{0}-{1}-{2}", start.Day, start.Month, start.Year),
-                        EndDate = string.Format("{0}-{1}-{2}", end.Day, end.Month, end.Year),
-                        DataImported = dataImported
-                    };
+                           {
+                               Products = productModels,
+                               TotalCredit = totalCredit,
+                               Debits = MapDebits(debits),
+                               TotalDebits = totalDebits,
+                               CashInRegister = cashInRegister,
+                               Seed = seed,
+                               FinalTotal = cashInRegister - seed,
+                               StartDate = string.Format("{0}-{1}-{2}", start.Day, start.Month, start.Year),
+                               EndDate = string.Format("{0}-{1}-{2}", end.Day, end.Month, end.Year),
+                               DataImported = dataImported
+                           };
             }
         }
 
-        private IEnumerable<DebitModel> MapDebits(IQueryable<Debit> debits)
+        IEnumerable<DebitModel> MapDebits(IQueryable<Debit> debits)
         {
             return
                 debits.Select(
@@ -222,24 +222,24 @@ namespace Cafe.DailyReports
                         }).ToList();
         }
 
-        private dynamic PrintDailyReport()
+        dynamic PrintDailyReport()
         {
-            DailyReportInput dailyReportInput = this.GetDailyReportInputWithDefaults();
+            DailyReportInput dailyReportInput = GetDailyReportInputWithDefaults();
 
             string htmlPath = string.Format(
                 "http://{0}:{1}/daily?start={2}&end={3}&orderBy={4}",
-                this.Request.Url.HostName,
-                this.Request.Url.Port,
+                Request.Url.HostName,
+                Request.Url.Port,
                 dailyReportInput.Start.ToShortDateString(),
                 dailyReportInput.End.ToShortDateString(),
                 dailyReportInput.OrderBy);
 
-            this.PrintHtml(htmlPath, this.printerDeviceName);
+            PrintHtml(htmlPath, printerDeviceName);
 
             return View["success"];
         }
 
-        private void PrintHtml(string htmlPath, string printerDevice)
+        void PrintHtml(string htmlPath, string printerDevice)
         {
             if (!string.IsNullOrEmpty(printerDevice))
             {
@@ -247,11 +247,11 @@ namespace Cafe.DailyReports
             }
 
             Task.Factory.StartNew(
-                () => this.PrintOnStaThread(htmlPath), CancellationToken.None, TaskCreationOptions.None, this.sta).Wait(
-                    );
+                () => PrintOnStaThread(htmlPath), CancellationToken.None, TaskCreationOptions.None, sta).Wait(
+                );
         }
 
-        private void PrintOnStaThread(string htmlPath)
+        void PrintOnStaThread(string htmlPath)
         {
             const short PRINT_WAITFORCOMPLETION = 2;
             const int OLECMDID_PRINT = 6;
@@ -269,13 +269,13 @@ namespace Cafe.DailyReports
             }
         }
 
-        private dynamic ViewDailyReport()
+        dynamic ViewDailyReport()
         {
-            DailyReportInput dailyReportInput = this.GetDailyReportInputWithDefaults();
+            DailyReportInput dailyReportInput = GetDailyReportInputWithDefaults();
 
-            DailySheetModel dailySheetModel = this.GetDailySheetData(
+            DailySheetModel dailySheetModel = GetDailySheetData(
                 dailyReportInput.Start, dailyReportInput.End, dailyReportInput.OrderBy);
-            return this.View["DailySheet", dailySheetModel];
+            return View["DailySheet", dailySheetModel];
         }
 
         #endregion

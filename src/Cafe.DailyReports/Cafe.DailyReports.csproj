@@ -83,6 +83,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Views\dailyStart.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="logging.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
