@@ -6,7 +6,7 @@ namespace Cafe.DailyReports
     {
         #region Public Properties
 
-        public DateTime End { get; set; }
+        public DateTime? End { get; set; }
 
         public string OrderBy { get; set; }
 

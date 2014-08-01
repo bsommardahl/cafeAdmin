@@ -1,175 +1,258 @@
 @using System.Linq
-@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Cafe.DailyReports.DailySheetModel>
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<DailySheetModel>
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Daily Sheet</title>
-</head>
-<body>
-    <style type="text/css">
-        body {
-            background-color: #fff;
-            border-top: solid 10px #000;
-            color: #333;
-            font-size: .85em;
-            font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-            margin: 0;
-            padding: 0;
-        }
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Daily Sheet</title>
+    </head>
+    <body>
+        <style type="text/css">
+            body {
+                background-color: #fff;
+                border-top: solid 10px #000;
+                color: #333;
+                font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+                font-size: .85em;
+                margin: 0;
+                padding: 0;
+            }
 
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-            margin-top: 0.75em;
-            border: 0 none;
-        }
+            table {
+                border: 0 none;
+                border-collapse: collapse;
+                border-spacing: 0;
+                margin-top: 0.75em;
+            }
 
-        td { border-bottom: #CCCCCC solid 1px; }
+            td { border-bottom: #CCCCCC solid 1px; }
 
-        th { border-bottom: #CCCCCC solid 1px; }
+            th { border-bottom: #CCCCCC solid 1px; }
 
-        .page {
-            margin: 0 auto;
-            width: 800px;
-        }
+            .page {
+                margin: 0 auto;
+                width: 800px;
+            }
 
-        .tabular { width: 100%; }
+            .tabular { width: 100%; }
 
-        .tabular tfoot { background: #EEEEEE; }
+            .tabular tfoot { background: #EEEEEE; }
 
-        .tabular thead {
-            background: #333333;
-            color: white;
-        }
+            .tabular thead {
+                background: #333333;
+                color: white;
+            }
 
-        .totalRight { text-align: right; }
+            .totalRight { text-align: right; }
 
-        .finalTotals {
-            margin-left: auto;
-            width: 400px;
-        }
+            .finalTotals {
+                margin-left: auto;
+                width: 400px;
+            }
 
-        .numberCell { text-align: right; }
-    </style>
+            .numberCell { text-align: right; }
+        </style>
 
-    <div class="page">
-        <h2>Diario de Cafe El Gringo - Santa Ana, FM - @this.Model.StartDate a @this.Model.EndDate</h2>
+        <div class="page">
+            <h2>Diario de Cafe El Gringo - Santa Ana, FM - @Model.StartDate a @Model.EndDate</h2>
     
-        <h3>Ventas</h3>
+            <h3>Ventas Normales</h3>
 
-    <table class='tabular'>
-        <thead>
-            <tr>
-                <th>Cantidad</th>
-                <th>Categoria</th>
-                <th>Producto</th>
-                <th class="numberCell">Precio</th>
-                <th class="numberCell">Venta</th>
-                <th class="numberCell">% de ISV</th>
-                <th class="numberCell">ISV</th>
-                <th class="numberCell">Costo</th>
-                <th class="numberCell">Ganancia</th>                
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var p in this.Model.Products)
-            {
-                <tr>
-                    <td>@p.Quantity</td>
-                    <td>@p.Tag</td>
-                    <td>@p.Name</td>
-                    <td class="numberCell">@p.Price</td>
-                    <td class="numberCell">@p.TotalSales</td>
-                    <td class="numberCell">@p.TaxRate</td>
-                    <td class="numberCell">@p.TotalTax</td>
-                    <td class="numberCell">@p.TotalCost</td>
-                    <td class="numberCell">@p.TotalProfit</td>
-                </tr>
-            }            
-        </tbody>
-        <tfoot>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="numberCell">Total Venta:</td>
-                <td class="numberCell">@this.Model.Products.Sum(x => x.TotalSales)</td>
-                <td class="numberCell">Total ISV:</td>
-                <td class="numberCell">@this.Model.Products.Sum(x => x.TotalTax)</td>                
-                <td class="numberCell">Total Ganancia:</td>
-                <td class="numberCell">@this.Model.Products.Sum(x => x.TotalProfit)</td>                
-            </tr>
-        </tfoot>
-    </table>
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Categoria</th>
+                        <th>Producto</th>
+                        <th class="numberCell">Precio</th>
+                        <th class="numberCell">Venta</th>
+                        <th class="numberCell">% de ISV</th>
+                        <th class="numberCell">ISV</th>
+                        <th class="numberCell">Costo</th>
+                        <th class="numberCell">Ganancia</th>                
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (AggregateSalesModel p in Model.Products)
+                    {
+                        <tr>
+                            <td>@p.Quantity</td>
+                            <td>@p.Tag</td>
+                            <td>@p.Name</td>
+                            <td class="numberCell">@p.Price</td>
+                            <td class="numberCell">@p.TotalSales</td>
+                            <td class="numberCell">@p.TaxRate</td>
+                            <td class="numberCell">@p.TotalTax</td>
+                            <td class="numberCell">@p.TotalCost</td>
+                            <td class="numberCell">@p.TotalProfit</td>
+                        </tr>
+                    }            
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="numberCell">Total Venta:</td>
+                        <td class="numberCell">@Model.Products.Sum(x => x.TotalSales)</td>
+                        <td class="numberCell">Total ISV:</td>
+                        <td class="numberCell">@Model.Products.Sum(x => x.TotalTax)</td>                
+                        <td class="numberCell">Total Ganancia:</td>
+                        <td class="numberCell">@Model.Products.Sum(x => x.TotalProfit)</td>                
+                    </tr>
+                </tfoot>
+            </table>
     
-    <h3 class="totalRight">Total Ingreso: @this.Model.TotalCredit</h3>
+            <h4 class="totalRight">Total Ingreso Con Impuesto: @Model.TotalCreditWithTax</h4>
+            
+            <h3>Ventas Extentas de Impuesto</h3>
 
-    <h3>Gastos</h3>
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Categoria</th>
+                        <th>Producto</th>
+                        <th class="numberCell">Precio</th>
+                        <th class="numberCell">Venta</th>
+                        <th class="numberCell">Costo</th>
+                        <th class="numberCell">Ganancia</th>                
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (AggregateSalesModel p in Model.SalesNonTaxable)
+                    {
+                        <tr>
+                            <td>@p.Quantity</td>
+                            <td>@p.Tag</td>
+                            <td>@p.Name</td>
+                            <td class="numberCell">@p.Price</td>
+                            <td class="numberCell">@p.TotalSales</td>
+                            <td class="numberCell">@p.TotalCost</td>
+                            <td class="numberCell">@p.TotalProfit</td>
+                        </tr>
+                    }            
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="numberCell">Total Venta:</td>
+                        <td class="numberCell">@Model.SalesNonTaxable.Sum(x => x.TotalSales)</td>
+                        <td class="numberCell">Total Ganancia:</td>
+                        <td class="numberCell">@Model.SalesNonTaxable.Sum(x => x.TotalProfit)</td>                
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <h4 class="totalRight">Total Ingreso Extendo de Impuesto: @Model.TotalCreditWithoutTax</h4>
+            
+            <h3 class="totalRight">Total Ingreso: @Model.TotalCredit</h3>
+            
+            <h3>Gastos Sin Impuesto</h3>
 
-    <table class='tabular'>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripcion</th>
-                <th></th>
-                <th class="numberCell">Pagado</th>
-                <th></th>
-                <th class="numberCell">ISV</th>                
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var d in this.Model.Debits)
-            {
-                <tr>
-                    <td>@d.VendorName</td>
-                    <td>@d.Description</td>
-                    <td></td>
-                    <td class="numberCell">@d.Amout</td>
-                    <td></td>
-                    <td class="numberCell">@d.TaxPaid</td>                
-                </tr>
-            }            
-        </tbody>
-        <tfoot>
-            <tr>
-                <td></td>
-                <td></td>
-                <td class="numberCell">Total Gastado:</td>
-                <td class="numberCell">@this.Model.Debits.Sum(x => x.Amout)</td>
-                <td class="numberCell">Total ISV Pagado:</td>
-                <td class="numberCell">@this.Model.Debits.Sum(x => x.TaxPaid)</td>
-            </tr>
-        </tfoot>
-    </table>
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                        <th></th>
+                        <th class="numberCell">Pagado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DebitModel d in Model.DebitsNoTax)
+                    {
+                        <tr>
+                            <td>@d.CreatedDate.ToShortDateString()</td>
+                            <td>@d.VendorName</td>
+                            <td>@d.Description</td>
+                            <td></td>
+                            <td class="numberCell">@d.Amout</td>                     
+                        </tr>
+                    }            
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="numberCell">Total Gastado:</td>
+                        <td class="numberCell">@Model.DebitsNoTax.Sum(x => x.Amout)</td>                        
+                    </tr>
+                </tfoot>
+            </table>
     
-    <h3 class="totalRight">Total Gasto: @this.Model.TotalDebits</h3>
+            <h3>Gastos Con Impuesto</h3>
+
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                        <th></th>
+                        <th class="numberCell">Pagado</th>
+                        <th></th>
+                        <th class="numberCell">ISV</th>                
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DebitModel d in Model.DebitsWithTax)
+                    {
+                        <tr>
+                            <td>@d.CreatedDate.ToShortDateString()</td>
+                            <td>@d.VendorName</td>
+                            <td>@d.Description</td>
+                            <td></td>
+                            <td class="numberCell">@d.Amout</td>
+                            <td></td>
+                            <td class="numberCell">@d.TaxPaid</td>                
+                        </tr>
+                    }            
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="numberCell">Total Gastado:</td>
+                        <td class="numberCell">@Model.DebitsWithTax.Sum(x => x.Amout)</td>
+                        <td class="numberCell">Total ISV Pagado:</td>
+                        <td class="numberCell">@Model.DebitsWithTax.Sum(x => x.TaxPaid)</td>
+                    </tr>
+                </tfoot>
+            </table>
     
-    <div class="finalTotals">
-        <table class='tabular'>
-            <tr>
-                <th class="numberCell">Total Venta Ingresado</th>
-                <td class="numberCell">@this.Model.TotalCredit</td>
-            </tr>
-            <tr>
-                <th class="numberCell">Total Gastos</th>
-                <td class="numberCell">-@this.Model.TotalDebits</td>
-            </tr>
-            <tr>
-                <th class="numberCell">Efectivo en Caja</th>
-                <td class="numberCell">@this.Model.CashInRegister</td>
-            </tr>                
-            <tr>
-                <th class="numberCell">Fondo de Caja</th>
-                <td class="numberCell">-@this.Model.Seed</td>
-            </tr>                
-            <tr>
-                <th class="numberCell">Total Final</th>
-                <td class="numberCell">@this.Model.FinalTotal</td>
-            </tr>    
-        </table>
-    </div>
-    </div>
-</body>
+            <h3 class="totalRight">Total Gasto: @Model.TotalDebits</h3>
+    
+            <div class="finalTotals">
+                <table class='tabular'>
+                    <tr>
+                        <th class="numberCell">Total Venta Ingresado</th>
+                        <td class="numberCell">@Model.TotalCredit</td>
+                    </tr>
+                    <tr>
+                        <th class="numberCell">Total Gastos</th>
+                        <td class="numberCell">-@Model.TotalDebits</td>
+                    </tr>
+                    <tr>
+                        <th class="numberCell">Efectivo en Caja</th>
+                        <td class="numberCell">@Model.CashInRegister</td>
+                    </tr>                
+                    <tr>
+                        <th class="numberCell">Fondo de Caja</th>
+                        <td class="numberCell">-@Model.Seed</td>
+                    </tr>                
+                    <tr>
+                        <th class="numberCell">Total Final</th>
+                        <td class="numberCell">@Model.FinalTotal</td>
+                    </tr>    
+                </table>
+            </div>
+        </div>
+    </body>
 </html>

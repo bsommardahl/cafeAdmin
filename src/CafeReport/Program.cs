@@ -10,7 +10,7 @@ namespace CafeReport
             var backup = new CafeDataBackup("http://cafeserver.aws.af.cm");
             backup.Go();
             Console.WriteLine("Done.");
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }

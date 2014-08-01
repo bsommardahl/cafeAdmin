@@ -9,8 +9,8 @@ namespace Cafe.DailyReports
 
         public DailySheetModel()
         {
-            this.Debits = new List<DebitModel>();
-            this.Products = new List<ProductModel>();
+            this.DebitsNoTax = new List<DebitModel>();
+            this.Products = new List<AggregateSalesModel>();
         }
 
         #endregion
@@ -21,13 +21,13 @@ namespace Cafe.DailyReports
 
         public DateTime DataImported { get; set; }
 
-        public IEnumerable<DebitModel> Debits { get; set; }
+        public IEnumerable<DebitModel> DebitsNoTax { get; set; }
 
         public string EndDate { get; set; }
 
         public double FinalTotal { get; set; }
 
-        public IEnumerable<ProductModel> Products { get; set; }
+        public IEnumerable<AggregateSalesModel> Products { get; set; }
 
         public double Seed { get; set; }
 
@@ -36,6 +36,14 @@ namespace Cafe.DailyReports
         public double TotalCredit { get; set; }
 
         public double TotalDebits { get; set; }
+
+        public IEnumerable<DebitModel> DebitsWithTax { get; set; }
+
+        public IEnumerable<AggregateSalesModel> SalesNonTaxable { get; set; }
+
+        public double TotalCreditWithoutTax { get; set; }
+
+        public double TotalCreditWithTax { get; set; }
 
         #endregion
     }

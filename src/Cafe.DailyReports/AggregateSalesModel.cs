@@ -1,6 +1,6 @@
 namespace Cafe.DailyReports
 {
-    public class ProductModel
+    public class AggregateSalesModel
     {
         public int Quantity { get; set; }
 

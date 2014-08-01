@@ -47,7 +47,7 @@ namespace Cafe.DailyReports
 
         #region Methods
 
-        static IEnumerable<ProductModel> Products(
+        static IEnumerable<AggregateSalesModel> Sales(
             IQueryable<Order> orders, IEnumerable<Product> products, string orderBy)
         {
             List<IGrouping<string, OrderItem>> list = orders.SelectMany(x => x.OrderItems).GroupBy(x => x.Name).ToList();
@@ -70,7 +70,7 @@ namespace Cafe.DailyReports
                 orderedEnumerable = list.OrderBy(x => x.Count());
             }
 
-            IEnumerable<ProductModel> productModels = orderedEnumerable.Select(
+            IEnumerable<AggregateSalesModel> productModels = orderedEnumerable.Select(
                 x =>
                     {
                         OrderItem orderItem = x.First();
@@ -78,7 +78,7 @@ namespace Cafe.DailyReports
                         Product product = products.FirstOrDefault(p => p.Name == orderItem.Name);
                         if (product == null)
                         {
-                            return new ProductModel();
+                            return new AggregateSalesModel();
                         }
                         double totalCost = Convert.ToDouble((quantity*product.Cost));
 
@@ -91,7 +91,7 @@ namespace Cafe.DailyReports
                         double price = Convert.ToDouble(itemPrice);
                         double totalProfit = totalSales - totalCost;
 
-                        return new ProductModel
+                        return new AggregateSalesModel
                                    {
                                        Name = orderItem.Name,
                                        Tag = orderItem.Tags,
@@ -147,9 +147,9 @@ namespace Cafe.DailyReports
             {
                 dailyReportInput.Start = DateTime.Now.Date;
             }
-            if (dailyReportInput.End == DateTime.MinValue)
+            if (!dailyReportInput.End.HasValue)
             {
-                dailyReportInput.End = DateTime.Now.Date;
+                dailyReportInput.End = dailyReportInput.Start;
             }
             if (string.IsNullOrEmpty(dailyReportInput.OrderBy))
             {
@@ -160,11 +160,11 @@ namespace Cafe.DailyReports
 
         DailySheetModel GetDailySheetData(DateTime start, DateTime end, string orderBy)
         {
-            if (dataImported < DateTime.Now.AddMinutes(-5))
-            {
-                new CafeDataBackup("http://cafeserver.aws.af.cm").Go();
-                dataImported = DateTime.Now;
-            }
+            //if (dataImported < DateTime.Now.AddMinutes(-5))
+            //{
+            //    new CafeDataBackup("http://cafeserver.aws.af.cm").Go();
+            //    dataImported = DateTime.Now;
+            //}
 
             start = start.Date.AddMinutes(1);
             end = end.AddDays(1).Date.AddMinutes(-1);
@@ -178,20 +178,38 @@ namespace Cafe.DailyReports
                     dc.Debits.Where(
                         x => x.CreatedDate.Date >= start.Date && x.CreatedDate <= end && !x.OperationalExpense);
 
-                IEnumerable<ProductModel> productModels = Products(orders, products, orderBy);
-                double totalCredit = productModels.Any()
-                                         ? productModels.Sum(x => x.TotalSales) + productModels.Sum(x => x.TotalTax)
-                                         : 0;
+                IQueryable<Debit> debitsNoTax = debits.Where(x => x.TaxPaid == 0).OrderBy(x => x.CreatedDate);
 
-                double totalDebits = debits.Any() ? Convert.ToDouble(debits.Sum(x => x.Amout)) : 0;
+                IQueryable<Debit> debitsWithTax = debits.Where(x => x.TaxPaid > 0).OrderBy(x => x.CreatedDate);
+
+                IEnumerable<AggregateSalesModel> allSales = Sales(orders, products, orderBy);
+
+                double totalDebits = debitsNoTax.Any() ? Convert.ToDouble(debits.Sum(x => x.Amout)) : 0;
+
                 double seed = 500.00;
-                double cashInRegister = (totalCredit - totalDebits) + seed;
+                double cashInRegister = ((allSales.Any()
+                                              ? allSales.Sum(x => x.TotalSales) + allSales.Sum(x => x.TotalTax)
+                                              : 0) - totalDebits) + seed;
+
+                IEnumerable<AggregateSalesModel> taxableSales = allSales.Where(x => x.TaxRate > 0);
+                IEnumerable<AggregateSalesModel> nonTaxableSales = allSales.Where(x => x.TaxRate.Equals(0));
 
                 return new DailySheetModel
                            {
-                               Products = productModels,
-                               TotalCredit = totalCredit,
-                               Debits = MapDebits(debits),
+                               Products = taxableSales.Where(x => x.Quantity > 0),
+                               SalesNonTaxable = nonTaxableSales.Where(x => x.Quantity > 0),
+                               TotalCredit = allSales.Any()
+                                                 ? allSales.Sum(x => x.TotalSales) + allSales.Sum(x => x.TotalTax)
+                                                 : 0,
+                               TotalCreditWithTax = taxableSales.Any()
+                                                        ? taxableSales.Sum(x => x.TotalSales) +
+                                                          taxableSales.Sum(x => x.TotalTax)
+                                                        : 0,
+                               TotalCreditWithoutTax = nonTaxableSales.Any()
+                                                           ? nonTaxableSales.Sum(x => x.TotalSales)
+                                                           : 0,
+                               DebitsNoTax = MapDebits(debitsNoTax),
+                               DebitsWithTax = MapDebits(debitsWithTax),
                                TotalDebits = totalDebits,
                                CashInRegister = cashInRegister,
                                Seed = seed,
@@ -231,7 +249,7 @@ namespace Cafe.DailyReports
                 Request.Url.HostName,
                 Request.Url.Port,
                 dailyReportInput.Start.ToShortDateString(),
-                dailyReportInput.End.ToShortDateString(),
+                dailyReportInput.End.Value.ToShortDateString(),
                 dailyReportInput.OrderBy);
 
             PrintHtml(htmlPath, printerDeviceName);
@@ -274,7 +292,7 @@ namespace Cafe.DailyReports
             DailyReportInput dailyReportInput = GetDailyReportInputWithDefaults();
 
             DailySheetModel dailySheetModel = GetDailySheetData(
-                dailyReportInput.Start, dailyReportInput.End, dailyReportInput.OrderBy);
+                dailyReportInput.Start, dailyReportInput.End.Value, dailyReportInput.OrderBy);
             return View["DailySheet", dailySheetModel];
         }
 

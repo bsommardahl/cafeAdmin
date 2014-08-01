@@ -71,7 +71,7 @@
     <Compile Include="DailySheetModel.cs" />
     <Compile Include="DebitModel.cs" />
     <Compile Include="HipChatLogAppender.cs" />
-    <Compile Include="ProductModel.cs" />
+    <Compile Include="AggregateSalesModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StaTaskScheduler.cs" />
