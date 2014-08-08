@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using RestSharp;
 
 namespace Cafe.Json
@@ -23,6 +24,10 @@ namespace Cafe.Json
             if (response.ErrorException != null)
             {
                 throw response.ErrorException;
+            }
+            if(response.StatusCode!=HttpStatusCode.OK)
+            {
+                throw new Exception(response.ErrorMessage);
             }
             T data = response.Data;
             return data;

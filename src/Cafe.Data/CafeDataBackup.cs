@@ -71,13 +71,15 @@ namespace Cafe.Data
                 try
                 {
                     locationId = x.LocationId ?? locationId;
+                    var createdDate = x.CreatedDate;
+                    if (createdDate == DateTime.MinValue) throw new Exception("Created date was minvalue.");
                     dc.Debits.InsertOnSubmit(
                         new Debit
                             {
                                 _id = x._id,
                                 LocationId = locationId,
                                 Amout = Convert.ToDecimal(x.Amount),
-                                CreatedDate = x.CreatedDate,
+                                CreatedDate = createdDate,
                                 Description = x.Description,
                                 TaxPaid = Convert.ToDecimal((x.TaxPaid ?? "0")),
                                 VendorId = x.VendorId,
