@@ -12,5 +12,6 @@ namespace Cafe.Json
         public string _id { get; set; }
         public string LocationId { get; set; }
         public string TaxPaid { get; set; }
+        public string Type { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Drawing.Printing;
 using System.Linq;
@@ -38,9 +39,35 @@ namespace Cafe.DailyReports
         {
             Get["/daily/start"] = o => View["dailyStart"];
 
-            Get["/daily"] = o => ViewDailyReport();
+            Get["/daily"] = o =>
+                                {
+                                    DailyReportInput input = GetDailyReportInputWithDefaults();
+
+                                    if (input.Action == "Modificar Gastos")
+                                        return ViewModifyDebits(input);
+
+                                    return ViewDailyReport(input);                                    
+                                };
 
             Get["/print/daily"] = o => PrintDailyReport();
+        }
+
+        dynamic ViewModifyDebits(DailyReportInput input)
+        {
+            using (var dc = new CafeDataContext(connectionString))
+            {
+                var debits = GetDebitsInDateRange(input.Start, input.End.Value, dc);
+
+                var types = new List<DebitTypeModel>
+                                {
+                                    new DebitTypeModel("Administracion"),
+                                    new DebitTypeModel("Venta"),
+                                    new DebitTypeModel("Compra"),
+                                    new DebitTypeModel("Operacion"),
+                                };
+
+                return View["modifyDebits", new DebitModificationModel(input.Start, input.End.Value, MapDebits(debits), types)];
+            }
         }
 
         #endregion
@@ -174,17 +201,16 @@ namespace Cafe.DailyReports
                 IQueryable<Order> orders = dc.Orders.Where(x => x.Paid.Date >= start.Date && x.Paid <= end);
                 List<Product> products = dc.Products.ToList();
 
-                IQueryable<Debit> debits =
-                    dc.Debits.Where(
-                        x => x.CreatedDate.Date >= start.Date && x.CreatedDate <= end && !x.OperationalExpense);
+                var debitsNonOperational = GetDebitsInDateRange(start, end, dc, "venta");
+                var debitsOperational = GetDebitsInDateRange(start, end, dc, "operational", "admin", "compra");
 
-                IQueryable<Debit> debitsNoTax = debits.Where(x => x.TaxPaid == 0).OrderBy(x => x.CreatedDate);
+                var debitsNoTax = debitsNonOperational.Where(x => x.TaxPaid == 0).OrderBy(x => x.CreatedDate);
 
-                IQueryable<Debit> debitsWithTax = debits.Where(x => x.TaxPaid > 0).OrderBy(x => x.CreatedDate);
+                var debitsWithTax = debitsNonOperational.Where(x => x.TaxPaid > 0).OrderBy(x => x.CreatedDate);
 
                 IEnumerable<AggregateSalesModel> allSales = Sales(orders, products, orderBy);
 
-                double totalDebits = debitsNoTax.Any() ? Convert.ToDouble(debits.Sum(x => x.Amout)) : 0;
+                double totalDebits = debitsNoTax.Any() ? Convert.ToDouble(debitsNonOperational.Sum(x => x.Amout)) : 0;
 
                 double seed = 500.00;
                 double cashInRegister = ((allSales.Any()
@@ -210,6 +236,7 @@ namespace Cafe.DailyReports
                                                            : 0,
                                DebitsNoTax = MapDebits(debitsNoTax),
                                DebitsWithTax = MapDebits(debitsWithTax),
+                               DebitsOperational = MapDebits(debitsOperational),
                                TotalDebits = totalDebits,
                                CashInRegister = cashInRegister,
                                Seed = seed,
@@ -221,7 +248,20 @@ namespace Cafe.DailyReports
             }
         }
 
-        IEnumerable<DebitModel> MapDebits(IQueryable<Debit> debits)
+        static IEnumerable<Debit> GetDebitsInDateRange(DateTime start, DateTime end, CafeDataContext dc, params string[] types)
+        {
+            var debits =
+                dc.Debits.Where(
+                    x => x.CreatedDate.Date >= start.Date && x.CreatedDate < end.AddDays(1).Date).ToList();
+
+            if (types.Any())
+            {
+                debits = debits.Where(x => types.Select(y=> y.ToLower()).Contains(x.Type.ToLower())).ToList();
+            }
+            return debits;
+        }
+
+        IEnumerable<DebitModel> MapDebits(IEnumerable<Debit> debits)
         {
             return
                 debits.Select(
@@ -232,7 +272,7 @@ namespace Cafe.DailyReports
                             CreatedDate = x.CreatedDate,
                             Description = x.Description,
                             LocationId = x.LocationId,
-                            OperationalExpense = x.OperationalExpense,
+                            Type = x.Type,
                             TaxPaid = x.TaxPaid,
                             VendorId = x.VendorId,
                             VendorName = x.VendorName,
@@ -287,10 +327,8 @@ namespace Cafe.DailyReports
             }
         }
 
-        dynamic ViewDailyReport()
+        dynamic ViewDailyReport(DailyReportInput dailyReportInput)
         {
-            DailyReportInput dailyReportInput = GetDailyReportInputWithDefaults();
-
             DailySheetModel dailySheetModel = GetDailySheetData(
                 dailyReportInput.Start, dailyReportInput.End.Value, dailyReportInput.OrderBy);
             return View["DailySheet", dailySheetModel];

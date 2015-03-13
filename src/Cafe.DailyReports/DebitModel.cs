@@ -12,8 +12,6 @@ namespace Cafe.DailyReports
 
         public string LocationId { get; set; }
 
-        public bool OperationalExpense { get; set; }
-
         public decimal TaxPaid { get; set; }
 
         public string VendorId { get; set; }
@@ -21,5 +19,7 @@ namespace Cafe.DailyReports
         public string VendorName { get; set; }
 
         public string _id { get; set; }
+
+        public string Type { get; set; }
     }
 }

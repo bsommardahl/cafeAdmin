@@ -70,6 +70,10 @@
     <Compile Include="DailyReportPrintServerService.cs" />
     <Compile Include="DailySheetModel.cs" />
     <Compile Include="DebitModel.cs" />
+    <Compile Include="DebitModificationModel.cs" />
+    <Compile Include="DebitModifyInput.cs" />
+    <Compile Include="DebitModule.cs" />
+    <Compile Include="DebitTypeModel.cs" />
     <Compile Include="HipChatLogAppender.cs" />
     <Compile Include="AggregateSalesModel.cs" />
     <Compile Include="Program.cs" />
@@ -91,6 +95,9 @@
     </None>
     <None Include="packages.config" />
     <Content Include="Views\DailySheet.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\modifyDebits.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

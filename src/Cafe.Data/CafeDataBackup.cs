@@ -83,7 +83,8 @@ namespace Cafe.Data
                                 Description = x.Description,
                                 TaxPaid = Convert.ToDecimal((x.TaxPaid ?? "0")),
                                 VendorId = x.VendorId,
-                                VendorName = x.VendorName
+                                VendorName = x.VendorName,
+                                Type = x.Type ?? "Venta"
                             });
                     Console.Write(".");
                 }

@@ -2,7 +2,7 @@
 <ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 10.375" name="Cafe">
   <DataContextMoniker Name="/CafeDataContext" />
   <nestedChildShapes>
-    <classShape Id="1adaa3c8-5700-4687-a383-8d0d30aaba29" absoluteBounds="0.75, 3.75, 2, 2.5401025390625005">
+    <classShape Id="1adaa3c8-5700-4687-a383-8d0d30aaba29" absoluteBounds="0.75, 3.75, 2, 2.5401025390624996">
       <DataClassMoniker Name="/CafeDataContext/Debit" />
       <nestedChildShapes>
         <elementListCompartment Id="9c1fbe06-e38c-423d-b6ef-3fc9606c6000" absoluteBounds="0.765, 4.21, 1.9700000000000002, 1.9801025390625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
@@ -56,7 +56,7 @@
         <elementListCompartment Id="cf352782-292e-487a-be59-f0dfef4c1fc8" absoluteBounds="6.765, 8.21, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(2.75 : 1.88544840494792); (3.5 : 1.88544840494792)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(2.75 : 1.88544840494792); (3.5 : 1.88544840494792)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CafeDataContext/Order/Order_OrderItem" />
       <nodes>
         <classShapeMoniker Id="98431b29-cd01-4508-ae5a-97938a3c4f38" />

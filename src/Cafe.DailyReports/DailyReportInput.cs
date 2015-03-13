@@ -6,6 +6,8 @@ namespace Cafe.DailyReports
     {
         #region Public Properties
 
+        public string Action { get; set; }
+
         public DateTime? End { get; set; }
 
         public string OrderBy { get; set; }

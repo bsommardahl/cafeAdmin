@@ -1,0 +1,108 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<DebitModificationModel>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Debit Modification</title>
+    </head>
+    <body>
+        <style type="text/css">
+            body {
+                background-color: #fff;
+                border-top: solid 10px #000;
+                color: #333;
+                font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+                font-size: .8em;
+                margin: 0;
+                padding: 0;
+            }
+
+            table {
+                border: 0 none;
+                border-collapse: collapse;
+                border-spacing: 0;
+                margin-top: 0.75em;
+            }
+
+            td { border-bottom: #CCCCCC solid 1px; }
+
+            th { border-bottom: #CCCCCC solid 1px; }
+
+            .page {
+                margin: 0 auto;
+                width: 800px;
+            }
+
+            .tabular { width: 100%; }
+
+            .tabular tfoot { background: #EEEEEE; }
+
+            .tabular thead {
+                background: #333333;
+                color: white;
+            }
+
+            .totalRight { text-align: right; }
+
+            .finalTotals {
+                margin-left: auto;
+                width: 400px;
+            }
+
+            .numberCell { text-align: right; }
+        </style>
+
+        <div class="page">
+            <h2><a href="/daily/start"><< Eligir Fechas</a></h2>
+            <h2>Gastos - @Model.StartDate a @Model.EndDate</h2>
+    
+            <h3>Gastos Sin Impuesto</h3>
+
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                        <th></th>
+                        <th class="numberCell">Pagado</th>
+                        <th class="numberCell">ISV</th>                
+                        <th>Typo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DebitModel d in Model.Debits)
+                    {
+                        <tr>
+                            <td>@d.CreatedDate.ToShortDateString()</td>
+                            <td>@d.VendorName</td>
+                            <td>@d.Description</td>
+                            <td></td>
+                            <td class="numberCell">@d.Amout</td>  
+                            <td class="numberCell">@d.TaxPaid</td>    
+                            <td style="text-align: right"><form method="post" action="/debits/@d._id/type">
+                                    <select name="type">
+                                        @foreach (var type in Model.Types)
+                                        {
+                                             if (type.Name == d.Type)
+                                             {
+                                                 <option value="@type.Name" selected>@type.Name</option>
+                                             }
+                                             else
+                                             {
+                                                 <option value="@type.Name">@type.Name</option>
+                                             }
+                                        }
+                                        
+                                    </select><button>Cambiar</button>
+                                </form></td>                            
+                        </tr>
+                    }            
+                </tbody>
+                
+            </table>
+    
+        </div>
+    </body>
+</html>

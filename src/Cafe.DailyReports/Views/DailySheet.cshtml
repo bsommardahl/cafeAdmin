@@ -151,7 +151,7 @@
             
             <h3 class="totalRight">Total Ingreso: @Model.TotalCredit</h3>
             
-            <h3>Gastos Sin Impuesto</h3>
+            <h3>Compras Sin Impuesto</h3>
 
             <table class='tabular'>
                 <thead>
@@ -186,7 +186,7 @@
                 </tfoot>
             </table>
     
-            <h3>Gastos Con Impuesto</h3>
+            <h3>Compras Con Impuesto</h3>
 
             <table class='tabular'>
                 <thead>
@@ -227,7 +227,7 @@
                 </tfoot>
             </table>
     
-            <h3 class="totalRight">Total Gasto: @Model.TotalDebits</h3>
+            <h3 class="totalRight">Total Compras: @Model.TotalDebits</h3>
     
             <div class="finalTotals">
                 <table class='tabular'>
@@ -253,6 +253,50 @@
                     </tr>    
                 </table>
             </div>
+            
+            @if(Model.DebitsOperational.Any()){
+            <h3>Gastos</h3>
+            <table class='tabular'>
+                <thead>
+                    <tr>
+                        <th>Typo</th>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                        <th></th>
+                        <th class="numberCell">Pagado</th>
+                        <th></th>
+                        <th class="numberCell">ISV</th>                
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DebitModel d in Model.DebitsOperational)
+                    {
+                        <tr>
+                            <td>@d.Type</td>
+                            <td>@d.CreatedDate.ToShortDateString()</td>
+                            <td>@d.VendorName</td>
+                            <td>@d.Description</td>
+                            <td></td>
+                            <td class="numberCell">@d.Amout</td>
+                            <td></td>
+                            <td class="numberCell">@d.TaxPaid</td>                
+                        </tr>
+                    }            
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="numberCell">Total Gastado:</td>
+                        <td class="numberCell">@Model.DebitsOperational.Sum(x => x.Amout)</td>
+                        <td class="numberCell">Total ISV Pagado:</td>
+                        <td class="numberCell">@Model.DebitsOperational.Sum(x => x.TaxPaid)</td>
+                    </tr>
+                </tfoot>
+            </table>
+            }
         </div>
     </body>
 </html>
