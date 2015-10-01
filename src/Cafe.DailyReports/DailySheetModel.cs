@@ -45,7 +45,7 @@ namespace Cafe.DailyReports
 
         public double TotalCreditWithTax { get; set; }
 
-        public IEnumerable<DebitModel> DebitsOperational { get; set; }
+        public IEnumerable<DebitTypeWithDebits> DebitsByType { get; set; }
 
         #endregion
     }

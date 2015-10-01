@@ -63,16 +63,24 @@ namespace Cafe.Data
             string locationId = "";
             foreach (DebitJson x in orders)
             {
-                if (dc.Debits.Any(p => p._id == x._id))
-                {
-                    continue;
-                }
-
                 try
                 {
-                    locationId = x.LocationId ?? locationId;
-                    var createdDate = x.CreatedDate;
+                    DateTime createdDate = x.CreatedDate;
                     if (createdDate == DateTime.MinValue) throw new Exception("Created date was minvalue.");
+
+                    Debit existingDebit = dc.Debits.FirstOrDefault(p => p._id == x._id);
+                    if (existingDebit != null)
+                    {
+                        existingDebit.Amout = Convert.ToDecimal(x.Amount);
+                        existingDebit.CreatedDate = x.CreatedDate;
+                        existingDebit.Description = x.Description;
+                        existingDebit.TaxPaid = Convert.ToDecimal((x.TaxPaid ?? "0"));
+                        existingDebit.VendorId = x.VendorId;
+                        existingDebit.VendorName = x.VendorName;
+                        continue;
+                    }
+
+                    locationId = x.LocationId ?? locationId;
                     dc.Debits.InsertOnSubmit(
                         new Debit
                             {

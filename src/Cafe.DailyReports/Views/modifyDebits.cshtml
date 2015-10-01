@@ -5,18 +5,29 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>Debit Modification</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"> </script>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     </head>
     <body>
         <style type="text/css">
+            
             body {
                 background-color: #fff;
                 border-top: solid 10px #000;
                 color: #333;
-                font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-                font-size: .8em;
+                /*font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+                font-size: .8em;*/
                 margin: 0;
                 padding: 0;
             }
+
 
             table {
                 border: 0 none;
@@ -55,7 +66,7 @@
 
         <div class="page">
             <h2><a href="/daily/start"><< Eligir Fechas</a></h2>
-            <h2>Gastos - @Model.StartDate a @Model.EndDate</h2>
+            <h2>Gastos - @Model.StartDate.ToShortDateString() a @Model.EndDate.ToShortDateString()</h2>
     
             <h3>Gastos Sin Impuesto</h3>
 
@@ -68,7 +79,8 @@
                         <th></th>
                         <th class="numberCell">Pagado</th>
                         <th class="numberCell">ISV</th>                
-                        <th>Typo</th>
+                        <th>Tipo</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,26 +89,27 @@
                         <tr>
                             <td>@d.CreatedDate.ToShortDateString()</td>
                             <td>@d.VendorName</td>
-                            <td>@d.Description</td>
+                            <td><span title="@d.Description">@d.DescriptionTruncated</span></td>
                             <td></td>
                             <td class="numberCell">@d.Amout</td>  
                             <td class="numberCell">@d.TaxPaid</td>    
                             <td style="text-align: right"><form method="post" action="/debits/@d._id/type">
-                                    <select name="type">
-                                        @foreach (var type in Model.Types)
-                                        {
-                                             if (type.Name == d.Type)
-                                             {
-                                                 <option value="@type.Name" selected>@type.Name</option>
-                                             }
-                                             else
-                                             {
-                                                 <option value="@type.Name">@type.Name</option>
-                                             }
-                                        }
+                                                              <select name="type">
+                                                                  @foreach (DebitTypeModel type in Model.Types)
+                                                                  {
+                                                                      if (type.Name == d.Type)
+                                                                      {
+                                                                          <option value="@type.Name" selected>@type.Name</option>
+                                                                      }
+                                                                      else
+                                                                      {
+                                                                          <option value="@type.Name">@type.Name</option>
+                                                                      }
+                                                                  }
                                         
-                                    </select><button>Cambiar</button>
-                                </form></td>                            
+                                                              </select><button class="btn btn-sm btn-primary">Cambiar</button>
+                                                          </form></td>
+                            <td><form method="post" action="/debits/@d._id/delete"><button class="btn btn-sm btn-danger"><i class="fa fa-times"></i></button></form></td>                          
                         </tr>
                     }            
                 </tbody>

@@ -21,5 +21,7 @@ namespace Cafe.DailyReports
         public string _id { get; set; }
 
         public string Type { get; set; }
+
+        public string DescriptionTruncated { get; set; }
     }
 }

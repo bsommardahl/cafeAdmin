@@ -49,6 +49,8 @@ namespace Cafe.DailyReports
                                     return ViewDailyReport(input);                                    
                                 };
 
+
+
             Get["/print/daily"] = o => PrintDailyReport();
         }
 
@@ -201,16 +203,16 @@ namespace Cafe.DailyReports
                 IQueryable<Order> orders = dc.Orders.Where(x => x.Paid.Date >= start.Date && x.Paid <= end);
                 List<Product> products = dc.Products.ToList();
 
-                var debitsNonOperational = GetDebitsInDateRange(start, end, dc, "venta");
-                var debitsOperational = GetDebitsInDateRange(start, end, dc, "operational", "admin", "compra");
+                var allDebits = GetDebitsInDateRange(start, end, dc);
+                var debitsForSales = allDebits.Where(x => x.Type == "Venta");
+                
+                var debitsNoTax = debitsForSales.Where(x => x.TaxPaid == 0).OrderBy(x => x.CreatedDate);
 
-                var debitsNoTax = debitsNonOperational.Where(x => x.TaxPaid == 0).OrderBy(x => x.CreatedDate);
-
-                var debitsWithTax = debitsNonOperational.Where(x => x.TaxPaid > 0).OrderBy(x => x.CreatedDate);
+                var debitsWithTax = debitsForSales.Where(x => x.TaxPaid > 0).OrderBy(x => x.CreatedDate);
 
                 IEnumerable<AggregateSalesModel> allSales = Sales(orders, products, orderBy);
 
-                double totalDebits = debitsNoTax.Any() ? Convert.ToDouble(debitsNonOperational.Sum(x => x.Amout)) : 0;
+                double totalDebits = debitsNoTax.Any() ? Convert.ToDouble(debitsForSales.Sum(x => x.Amout)) : 0;
 
                 double seed = 500.00;
                 double cashInRegister = ((allSales.Any()
@@ -236,7 +238,8 @@ namespace Cafe.DailyReports
                                                            : 0,
                                DebitsNoTax = MapDebits(debitsNoTax),
                                DebitsWithTax = MapDebits(debitsWithTax),
-                               DebitsOperational = MapDebits(debitsOperational),
+                               DebitsByType = allDebits.Where(x=> x.Type!="Venta").GroupBy(x=> x.Type).Select(x => 
+                                   new DebitTypeWithDebits(x.Key, MapDebits(x))),
                                TotalDebits = totalDebits,
                                CashInRegister = cashInRegister,
                                Seed = seed,
@@ -270,6 +273,7 @@ namespace Cafe.DailyReports
                         {
                             Amout = x.Amout,
                             CreatedDate = x.CreatedDate,
+                            DescriptionTruncated = Truncate(x.Description, 40),
                             Description = x.Description,
                             LocationId = x.LocationId,
                             Type = x.Type,
@@ -278,6 +282,13 @@ namespace Cafe.DailyReports
                             VendorName = x.VendorName,
                             _id = x._id
                         }).ToList();
+        }
+
+        static string Truncate(string str, int descriptionMaxLength)
+        {
+            if (str.Length <= descriptionMaxLength) return str;
+            string truncated = str.Substring(1, descriptionMaxLength);
+            return truncated + "...";
         }
 
         dynamic PrintDailyReport()
@@ -335,5 +346,17 @@ namespace Cafe.DailyReports
         }
 
         #endregion
+    }
+
+    public class DebitTypeWithDebits
+    {
+        public string Type { get; set; }
+        public IEnumerable<DebitModel> Debits { get; set; }
+
+        public DebitTypeWithDebits(string type, IEnumerable<DebitModel> debits)
+        {
+            Type = type;
+            Debits = debits;
+        }
     }
 }

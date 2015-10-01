@@ -14,7 +14,7 @@
                 border-top: solid 10px #000;
                 color: #333;
                 font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-                font-size: .8em;
+                font-size: .5em;
                 margin: 0;
                 padding: 0;
             }
@@ -55,7 +55,11 @@
         </style>
 
         <div class="page">
-            <h2>Diario de Cafe El Gringo - Santa Ana, FM - @Model.StartDate a @Model.EndDate</h2>
+            <h2>Diario de Cafe El Gringo - Santa Ana, FM - @Model.StartDate 
+                @if(@Model.StartDate!=@Model.EndDate){ 
+                    <span>a @Model.EndDate</span>
+                }
+            </h2>
     
             <h3>Ventas Normales</h3>
 
@@ -254,12 +258,13 @@
                 </table>
             </div>
             
-            @if(Model.DebitsOperational.Any()){
-            <h3>Gastos</h3>
+            <h3>Todos Gastos</h3>
+            @foreach(var type in Model.DebitsByType){
+            <h4>@type.Type</h4>
             <table class='tabular'>
                 <thead>
                     <tr>
-                        <th>Typo</th>
+                        <th>Tipo</th>
                         <th>Fecha</th>
                         <th>Nombre</th>
                         <th>Descripcion</th>
@@ -270,7 +275,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (DebitModel d in Model.DebitsOperational)
+                    @foreach (var d in type.Debits)
                     {
                         <tr>
                             <td>@d.Type</td>
@@ -289,14 +294,17 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td class="numberCell">Total Gastado:</td>
-                        <td class="numberCell">@Model.DebitsOperational.Sum(x => x.Amout)</td>
+                        <td class="numberCell">@type.Debits.Sum(x => x.Amout)</td>
                         <td class="numberCell">Total ISV Pagado:</td>
-                        <td class="numberCell">@Model.DebitsOperational.Sum(x => x.TaxPaid)</td>
+                        <td class="numberCell">@type.Debits.Sum(x => x.TaxPaid)</td>
                     </tr>
                 </tfoot>
             </table>
             }
+            
+            <h4>Total Impuesto (ISV) Pagado: L @(Model.DebitsByType.Sum(x=> x.Debits.Sum(y=> y.TaxPaid))+Model.DebitsWithTax.Sum(x=> x.TaxPaid))</h4>
         </div>
     </body>
 </html>

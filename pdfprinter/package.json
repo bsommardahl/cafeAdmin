@@ -1,0 +1,16 @@
+{
+  "name": "pdfprinter",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "html-pdf": "^1.4.0",
+    "moment": "^2.10.6",
+    "request": "^2.64.0"
+  }
+}
