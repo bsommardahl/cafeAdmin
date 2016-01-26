@@ -13,10 +13,10 @@ namespace Cafe.Restore
 
         static void Main(string[] args)
         {
-            restClient = new RestClient("http://cafeserver.aws.af.cm");
+            restClient = new RestClient("https://gringo-cafe-server.herokuapp.com");
             
             using (var dc = new CafeDataContext())
-            {
+            {                
                 RestoreFromSQL(dc.Products, "/products", x => new ProductJson
                                                                   {
                                                                       _id = x._id,

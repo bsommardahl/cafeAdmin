@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cafe.Restore", "Cafe.Restor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cafe.DailyReports", "Cafe.DailyReports\Cafe.DailyReports.csproj", "{85792F4A-1733-4E3F-8E72-31593217178E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cafe.RestoreFromJsonFile", "Cafe.RestoreFromJsonFile\Cafe.RestoreFromJsonFile.csproj", "{0E68C88C-6A3D-4A52-A5DE-0163D8964C5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{85792F4A-1733-4E3F-8E72-31593217178E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85792F4A-1733-4E3F-8E72-31593217178E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85792F4A-1733-4E3F-8E72-31593217178E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E68C88C-6A3D-4A52-A5DE-0163D8964C5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E68C88C-6A3D-4A52-A5DE-0163D8964C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E68C88C-6A3D-4A52-A5DE-0163D8964C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E68C88C-6A3D-4A52-A5DE-0163D8964C5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

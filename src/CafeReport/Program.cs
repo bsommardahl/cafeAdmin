@@ -1,5 +1,7 @@
 ﻿using System;
 using Cafe.Data;
+using Cafe.Json;
+using RestSharp;
 
 namespace CafeReport
 {
@@ -7,7 +9,7 @@ namespace CafeReport
     {
         static void Main(string[] args)
         {
-            var backup = new CafeDataBackup("http://cafeserver.aws.af.cm");
+            var backup = new CafeDataBackup(new CafeDataReader(new RestClient("https://gringo-cafe-server.herokuapp.com")));
             backup.Go();
             Console.WriteLine("Done.");
             //Console.ReadKey();

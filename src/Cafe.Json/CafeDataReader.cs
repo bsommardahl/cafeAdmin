@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using RestSharp;
 
 namespace Cafe.Json
 {
-    public class CafeDataReader
+    public class CafeDataReader : ICafeDataReader
     {
         readonly RestClient _client;
 
@@ -13,14 +14,14 @@ namespace Cafe.Json
             _client = client;
         }
 
-        public T GetData<T>(string resource, Action<RestRequest> restRequest = null,
+        public IEnumerable<T> GetData<T>(string resource, Action<RestRequest> restRequest = null,
                             bool noLimit = true) where T : new()
         {
             var request = new RestRequest(resource, Method.GET);
             if (restRequest != null) restRequest(request);
             if (noLimit)
                 request.AddParameter("noLimit", "true");
-            IRestResponse<T> response = _client.Execute<T>(request);
+            IRestResponse<List<T>> response = _client.Execute<List<T>>(request);
             if (response.ErrorException != null)
             {
                 throw response.ErrorException;
@@ -29,7 +30,7 @@ namespace Cafe.Json
             {
                 throw new Exception(response.ErrorMessage);
             }
-            T data = response.Data;
+            List<T> data = response.Data;
             return data;
         }
     }
