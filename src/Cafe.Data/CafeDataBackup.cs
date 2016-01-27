@@ -15,17 +15,15 @@ namespace Cafe.Data
 
         #region Fields
 
-        readonly string _apiUrl;
-
-        CafeDataReader _dataReader;
+        readonly ICafeDataReader _dataReader;
 
         #endregion
 
         #region Constructors and Destructors
 
-        public CafeDataBackup(string apiUrl)
-        {
-            _apiUrl = apiUrl;
+        public CafeDataBackup(ICafeDataReader cafeDataReader)
+        {            
+            _dataReader = cafeDataReader;
         }
 
         #endregion
@@ -34,20 +32,17 @@ namespace Cafe.Data
 
         public void Go()
         {
-            var client = new RestClient(_apiUrl);
-            _dataReader = new CafeDataReader(client);
-
             Mapper.CreateMap<ProductJson, Product>();
 
             using (var dc = new CafeDataContext(connectionString))
             {
-                PersistOrders(dc);
-                PersistProducts(dc);
-                PersistTags(dc);
-                PersistDebits(dc);
-                PersistEmployees(dc);
-                PersistTimes(dc);
-                PersistVendors(dc);
+                PersistOrders(dc, _dataReader.GetData<OrderJson>("orders"));
+                PersistProducts(dc, _dataReader.GetData<ProductJson>("products", null, false));
+                PersistTags(dc, _dataReader.GetData<TagJson>("tags", null, false));
+                PersistDebits(dc, _dataReader.GetData<DebitJson>("debits"));
+                PersistEmployees(dc, _dataReader.GetData<EmployeeJson>("employees", null, false));
+                PersistTimes(dc, _dataReader.GetData<TimeJson>("times"));
+                PersistVendors(dc, _dataReader.GetData<VendorJson>("vendors", null, false));
             }
         }
 
@@ -55,13 +50,11 @@ namespace Cafe.Data
 
         #region Methods
 
-        void PersistDebits(CafeDataContext dc)
+        void PersistDebits(CafeDataContext dc, IEnumerable<DebitJson> items)
         {
             Console.WriteLine("Debits");
-
-            var orders = _dataReader.GetData<List<DebitJson>>("debits");
             string locationId = "";
-            foreach (DebitJson x in orders)
+            foreach (DebitJson x in items)
             {
                 try
                 {
@@ -104,12 +97,11 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistEmployees(CafeDataContext dc)
+        void PersistEmployees(CafeDataContext dc, IEnumerable<EmployeeJson> items)
         {
             Console.WriteLine("Employees");
 
-            var orders = _dataReader.GetData<List<EmployeeJson>>("employees", null, false);
-            foreach (EmployeeJson x in orders)
+            foreach (EmployeeJson x in items)
             {
                 if (dc.Employees.Any(p => p._id == x._id))
                 {
@@ -123,12 +115,13 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistOrders(CafeDataContext dc)
+        void PersistOrders(CafeDataContext dc, IEnumerable<OrderJson> items)
         {
             Console.WriteLine("Orders");
-            var orders = _dataReader.GetData<List<OrderJson>>("orders");
-            foreach (OrderJson x in orders)
+            foreach (OrderJson x in items)
             {
+                if (x.Created < new DateTime(2015, 11, 30)) continue;
+
                 if (dc.Orders.Any(p => p._id == x._id))
                 {
                     continue;
@@ -164,12 +157,11 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistProducts(CafeDataContext dc)
+        void PersistProducts(CafeDataContext dc, IEnumerable<ProductJson> items)
         {
             Console.WriteLine("Products");
 
-            var orders = _dataReader.GetData<List<ProductJson>>("products", null, false);
-            foreach (ProductJson x in orders)
+            foreach (ProductJson x in items)
             {
                 Product existing = dc.Products.FirstOrDefault(p => p._id == x._id);
 
@@ -188,11 +180,10 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistTags(CafeDataContext dc)
+        void PersistTags(CafeDataContext dc, IEnumerable<TagJson> items)
         {
             Console.WriteLine("Tags");
-            var orders = _dataReader.GetData<List<TagJson>>("tags", null, false);
-            foreach (TagJson x in orders)
+            foreach (TagJson x in items)
             {
                 if (dc.Tags.Any(p => p._id == x._id))
                 {
@@ -206,12 +197,11 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistTimes(CafeDataContext dc)
+        void PersistTimes(CafeDataContext dc, IEnumerable<TimeJson> items)
         {
             Console.WriteLine("Times");
 
-            var orders = _dataReader.GetData<List<TimeJson>>("times");
-            foreach (TimeJson x in orders)
+            foreach (TimeJson x in items)
             {
                 if (dc.Times.Any(p => p._id == x._id))
                 {
@@ -238,12 +228,11 @@ namespace Cafe.Data
             dc.SubmitChanges();
         }
 
-        void PersistVendors(CafeDataContext dc)
+        void PersistVendors(CafeDataContext dc, IEnumerable<VendorJson> items)
         {
             Console.WriteLine("Vendors");
 
-            var orders = _dataReader.GetData<List<VendorJson>>("vendors", null, false);
-            foreach (VendorJson x in orders)
+            foreach (VendorJson x in items)
             {
                 if (dc.Vendors.Any(p => p._id == x._id))
                 {
