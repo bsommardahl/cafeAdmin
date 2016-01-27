@@ -19,7 +19,7 @@ function printDaily(start){
 	});	
 }
 
-for(var i = 0; i < 100; i++){
-	var start = moment('2014-07-15').add(i, 'days').format('YYYY-MM-DD');
+for(var i = 0; i < 30; i++){
+	var start = moment('2015-01-01').add(i, 'days').format('YYYY-MM-DD');
 	printDaily(start);
 }
